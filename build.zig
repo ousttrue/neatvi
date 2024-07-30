@@ -4,12 +4,22 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
+    const lib = b.addStaticLibrary(.{
+        .target = target,
+        .optimize = optimize,
+        .name = "lib",
+        .root_source_file = b.path("src/lib.zig"),
+    });
+    lib.linkLibC();
+
     const exe = b.addExecutable(.{
         .target = target,
         .optimize = optimize,
         .name = "neatvi",
         .root_source_file = b.path("src/main.zig"),
     });
+    // exe.linkLibrary(lib);
+    exe.root_module.addImport("lib", &lib.root_module);
     exe.addCSourceFiles(.{
         .files = &.{
             "vi.c",

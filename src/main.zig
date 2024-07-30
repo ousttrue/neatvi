@@ -1,28 +1,10 @@
 const std = @import("std");
 const c = @import("c.zig");
-
-fn strchr(str: []u8, ch: u8) ?[]u8 {
-    for (str, 0..) |*p, i| {
-        if (p.* == ch) {
-            return str[i..];
-        }
-    }
-    return null;
-}
-
-fn strrchr(str: []u8, ch: u8) ?[]u8 {
-    var i: i32 = @intCast(str.len - 1);
-    while (i >= 0) : (i -= 1) {
-        if (str[@intCast(i)] == ch) {
-            return str[@intCast(i)..];
-        }
-    }
-    return null;
-}
+const lib = @import("lib");
 
 fn get_prog() []const u8 {
-    if (strchr(std.mem.span(std.os.argv[0]), '/')) |_| {
-        if (strrchr(std.mem.span(std.os.argv[0]), '/')) |r| {
+    if (lib.strchr(std.mem.span(std.os.argv[0]), '/')) |_| {
+        if (lib.strrchr(std.mem.span(std.os.argv[0]), '/')) |r| {
             return r[1..];
         } else {
             unreachable;
