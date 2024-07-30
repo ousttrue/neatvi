@@ -139,8 +139,12 @@ static void lbuf_replace(struct lbuf *lb, char *s, int pos, int n_del)
 		int nsz = lb->ln_sz + (lb->ln_sz ? lb->ln_sz : 512);
 		char **nln = malloc(nsz * sizeof(nln[0]));
 		char *nln_glob = malloc(nsz * sizeof(nln_glob[0]));
+		if(lb->ln){
 		memcpy(nln, lb->ln, lb->ln_n * sizeof(lb->ln[0]));
+		}
+		if(lb->ln_glob){
 		memcpy(nln_glob, lb->ln_glob, lb->ln_n * sizeof(lb->ln_glob[0]));
+		}
 		free(lb->ln);
 		free(lb->ln_glob);
 		lb->ln = nln;
@@ -191,7 +195,9 @@ static void lbuf_opt(struct lbuf *lb, char *buf, int pos, int n_del)
 	if (lb->hist_n == lb->hist_sz) {
 		int sz = lb->hist_sz + (lb->hist_sz ? lb->hist_sz : 128);
 		struct lopt *hist = malloc(sz * sizeof(hist[0]));
+		if(lb->hist){
 		memcpy(hist, lb->hist, lb->hist_n * sizeof(hist[0]));
+		}
 		free(lb->hist);
 		lb->hist = hist;
 		lb->hist_sz = sz;

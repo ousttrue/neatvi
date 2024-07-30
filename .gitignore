@@ -1,3 +1,6 @@
 *.o
 vi
 tags
+
+/zig-out/
+/.zig-cache/
