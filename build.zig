@@ -8,7 +8,7 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
         .name = "neatvi",
-        // .root_source_file = b.path("src/main.zig"),
+        .root_source_file = b.path("src/main.zig"),
     });
     exe.addCSourceFiles(.{
         .files = &.{
@@ -33,6 +33,7 @@ pub fn build(b: *std.Build) void {
         },
     });
     exe.linkLibC();
+    exe.addIncludePath(b.path("."));
     b.installArtifact(exe);
 
     const run_cmd = b.addRunArtifact(exe);

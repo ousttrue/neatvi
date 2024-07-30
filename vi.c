@@ -44,7 +44,7 @@ static int vi_soset, vi_so;	/* search offset; 1 in "/kw/1" */
 static int w_cnt = 1;		/* window count */
 static int w_cur;		/* active window identifier */
 static int w_tmp;		/* temporary window */
-static char *w_path;		/* saved window path */
+char *w_path;		/* saved window path */
 static int w_row, w_off, w_top, w_left;	/* saved window configuration */
 
 static int vc_status(void);
@@ -1405,7 +1405,7 @@ static void sigwinch(int signo)
 	vi_back(TK_CTL('c'));
 }
 
-static void vi(void)
+void vi(void)
 {
 	int xcol;
 	int mark;
@@ -1792,45 +1792,3 @@ static void vi(void)
 	}
 }
 
-int main(int argc, char *argv[])
-{
-	int i;
-	char *prog = strchr(argv[0], '/') ? strrchr(argv[0], '/') + 1 : argv[0];
-	xvis = strcmp("ex", prog) && strcmp("neatex", prog);
-	for (i = 1; i < argc && argv[i][0] == '-'; i++) {
-		if (argv[i][1] == 's')
-			xled = 0;
-		if (argv[i][1] == 'e')
-			xvis = 0;
-		if (argv[i][1] == 'v')
-			xvis = 1;
-		if (argv[i][1] == 'h') {
-			printf("usage: %s [options] [file...]\n\n", argv[0]);
-			printf("options:\n");
-			printf("  -v    start in vi mode\n");
-			printf("  -e    start in ex mode\n");
-			printf("  -s    silent mode (for ex mode only)\n");
-			return 0;
-		}
-	}
-	dir_init();
-	syn_init();
-	tag_init();
-	if (!ex_init(argv + i)) {
-		if (xled || xvis)
-			term_init();
-		if (xvis)
-			vi();
-		else
-			ex();
-		if (xled || xvis)
-			term_done();
-		ex_done();
-	}
-	free(w_path);
-	reg_done();
-	syn_done();
-	dir_done();
-	tag_done();
-	return 0;
-}
