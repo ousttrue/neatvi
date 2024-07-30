@@ -11,6 +11,7 @@ pub fn build(b: *std.Build) void {
         .root_source_file = b.path("src/lib.zig"),
     });
     lib.linkLibC();
+    lib.addIncludePath(b.path("."));
 
     const exe = b.addExecutable(.{
         .target = target,
@@ -43,7 +44,6 @@ pub fn build(b: *std.Build) void {
         },
     });
     exe.linkLibC();
-    exe.addIncludePath(b.path("."));
     b.installArtifact(exe);
 
     const run_cmd = b.addRunArtifact(exe);

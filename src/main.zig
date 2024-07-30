@@ -1,6 +1,6 @@
 const std = @import("std");
-const c = @import("c.zig");
 const lib = @import("lib");
+const c = lib.c;
 
 fn get_prog() []const u8 {
     if (lib.strchr(std.mem.span(std.os.argv[0]), '/')) |_| {

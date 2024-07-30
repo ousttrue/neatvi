@@ -32,6 +32,7 @@ int lbuf_sectionbeg(struct lbuf *lb, int dir, char *sec, int *row, int *off);
 int lbuf_wordbeg(struct lbuf *lb, int big, int dir, int *row, int *off);
 int lbuf_wordend(struct lbuf *lb, int big, int dir, int *row, int *off);
 int lbuf_pair(struct lbuf *lb, int *row, int *off);
+void lopt_done(struct lbuf *lb);
 
 /* string buffer, variable-sized string */
 struct sbuf *sbuf_make(void);
