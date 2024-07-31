@@ -1,8 +1,11 @@
 #include "platform.h"
 #include <Windows.h>
-#include <stdio.h>
 #include <sys/types.h>
 
+struct TermSize {
+  int Rows;
+  int Cols;
+};
 struct Stream {
   DWORD Mode;
   HANDLE Handle;
@@ -32,6 +35,15 @@ void InitVirtualOutput(struct Stream *s) {
   }
 }
 void RestoreMode(struct Stream *s) { SetConsoleMode(s->Handle, s->Mode); }
+struct TermSize GetSizeOutput(struct Stream *s) {
+  struct TermSize size = {0};
+  CONSOLE_SCREEN_BUFFER_INFO csbi;
+  if (GetConsoleScreenBufferInfo(s->Handle, &csbi)) {
+    size.Cols = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+    size.Rows = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+  }
+  return size;
+};
 
 int ReadInput(struct Stream *s, INPUT_RECORD *buf, DWORD buf_size,
               DWORD *numRead) {
@@ -44,6 +56,9 @@ struct Stream g_stdout = {0};
 void term_init(void) {
   InitRawInput(&g_stdin);
   InitVirtualOutput(&g_stdout);
+  struct TermSize size = GetSizeOutput(&g_stdout);
+  cols = size.Cols;
+  rows = size.Rows;
 }
 
 void term_done(void) {
