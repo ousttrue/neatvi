@@ -1,4 +1,13 @@
 #include "platform.h"
+#include "vi.h"
+#include <poll.h>
+#include <sys/wait.h>
+#include <sys/ioctl.h>
+#include <termios.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <fcntl.h>
 
 static struct termios termios;
 

@@ -7,8 +7,8 @@
 #include "vi.h"
 
 static struct sbuf *term_sbuf;	/* output buffer if not NULL */
-static int rows, cols;		/* number of terminal rows and columns */
-static int win_beg, win_rows;	/* active window rows */
+int rows, cols;		/* number of terminal rows and columns */
+int win_beg, win_rows;	/* active window rows */
 
 void term_window(int row, int cnt)
 {
@@ -102,10 +102,10 @@ int term_cols(void)
 	return cols;
 }
 
-static char ibuf[4096];		/* input character buffer */
-static char icmd[4096];		/* read after the last term_cmd() */
-static int ibuf_pos, ibuf_cnt;	/* ibuf[] position and length */
-static int icmd_pos;		/* icmd[] position */
+char ibuf[4096];		/* input character buffer */
+char icmd[4096];		/* read after the last term_cmd() */
+int ibuf_pos, ibuf_cnt;	/* ibuf[] position and length */
+int icmd_pos;		/* icmd[] position */
 
 /* read s before reading from the terminal */
 void term_push(char *s, int n)
