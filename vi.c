@@ -1411,7 +1411,9 @@ void vi(void)
 	int mark;
 	char *ln;
 	int kmap = 0;
+#ifndef _WIN32
 	signal(SIGWINCH, sigwinch);
+#endif
 	vi_switch(0);
 	xtop = MAX(0, xrow - xrows / 2);
 	xoff = 0;

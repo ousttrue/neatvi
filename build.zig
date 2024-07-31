@@ -1,8 +1,38 @@
 const std = @import("std");
 
+const srcs = [_][]const u8{
+    "vi.c",
+    "ex.c",
+    "lbuf.c",
+    "mot.c",
+    "sbuf.c",
+    "ren.c",
+    "dir.c",
+    "syn.c",
+    "reg.c",
+    "led.c",
+    "uc.c",
+    "term.c",
+    "rset.c",
+    "rstr.c",
+    "regex.c",
+    "cmd.c",
+    "tag.c",
+    "conf.c",
+};
+
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
+
+    const platform = if (target.result.os.tag == .windows)
+        [_][]const u8{
+            "platform_win32.c",
+        }
+    else
+        [_][]const u8{
+            "platform_linux.c",
+        };
 
     const lib = b.addStaticLibrary(.{
         .target = target,
@@ -22,26 +52,7 @@ pub fn build(b: *std.Build) void {
     // exe.linkLibrary(lib);
     exe.root_module.addImport("lib", &lib.root_module);
     exe.addCSourceFiles(.{
-        .files = &.{
-            "vi.c",
-            "ex.c",
-            "lbuf.c",
-            "mot.c",
-            "sbuf.c",
-            "ren.c",
-            "dir.c",
-            "syn.c",
-            "reg.c",
-            "led.c",
-            "uc.c",
-            "term.c",
-            "rset.c",
-            "rstr.c",
-            "regex.c",
-            "cmd.c",
-            "tag.c",
-            "conf.c",
-        },
+        .files = &(srcs ++ platform),
     });
     exe.linkLibC();
     b.installArtifact(exe);

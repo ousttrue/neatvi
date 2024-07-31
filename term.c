@@ -1,40 +1,14 @@
-#include <poll.h>
+#include "platform.h"
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/ioctl.h>
-#include <termios.h>
 #include <unistd.h>
 #include "vi.h"
 
 static struct sbuf *term_sbuf;	/* output buffer if not NULL */
 static int rows, cols;		/* number of terminal rows and columns */
 static int win_beg, win_rows;	/* active window rows */
-static struct termios termios;
-
-void term_init(void)
-{
-	struct winsize win;
-	struct termios newtermios;
-	tcgetattr(0, &termios);
-	newtermios = termios;
-	newtermios.c_lflag &= ~(ICANON | ISIG);
-	newtermios.c_lflag &= ~ECHO;
-	tcsetattr(0, TCSAFLUSH, &newtermios);
-	if (getenv("LINES"))
-		rows = atoi(getenv("LINES"));
-	if (getenv("COLUMNS"))
-		cols = atoi(getenv("COLUMNS"));
-	if (!ioctl(0, TIOCGWINSZ, &win)) {
-		cols = win.ws_col;
-		rows = win.ws_row;
-	}
-	cols = cols ? cols : 80;
-	rows = rows ? rows : 25;
-	term_str("\33[m");
-	term_window(win_beg, win_rows > 0 ? win_rows : rows);
-}
 
 void term_window(int row, int cnt)
 {
@@ -49,22 +23,6 @@ void term_window(int row, int cnt)
 	}
 }
 
-void term_done(void)
-{
-	term_str("\33[r");
-	term_pos(rows - 1, 0);
-	term_kill();
-	term_commit();
-	tcsetattr(0, 0, &termios);
-}
-
-void term_suspend(void)
-{
-	term_done();
-	kill(0, SIGSTOP);
-	term_init();
-}
-
 void term_record(void)
 {
 	if (!term_sbuf)
@@ -74,7 +32,7 @@ void term_record(void)
 void term_commit(void)
 {
 	if (term_sbuf) {
-		write(1, sbuf_buf(term_sbuf), sbuf_len(term_sbuf));
+		write(STDOUT_FILENO, sbuf_buf(term_sbuf), sbuf_len(term_sbuf));
 		sbuf_free(term_sbuf);
 		term_sbuf = NULL;
 	}
@@ -85,7 +43,7 @@ static void term_out(char *s)
 	if (term_sbuf)
 		sbuf_str(term_sbuf, s);
 	else
-		write(1, s, strlen(s));
+		write(STDOUT_FILENO, s, strlen(s));
 }
 
 void term_str(char *s)
@@ -163,27 +121,6 @@ char *term_cmd(int *n)
 	*n = icmd_pos;
 	icmd_pos = 0;
 	return icmd;
-}
-
-int term_read(void)
-{
-	struct pollfd ufds[1];
-	int n, c;
-	if (ibuf_pos >= ibuf_cnt) {
-		ufds[0].fd = 0;
-		ufds[0].events = POLLIN;
-		if (poll(ufds, 1, -1) <= 0)
-			return -1;
-		/* read a single input character */
-		if ((n = read(0, ibuf, 1)) <= 0)
-			return -1;
-		ibuf_cnt = n;
-		ibuf_pos = 0;
-	}
-	c = ibuf_pos < ibuf_cnt ? (unsigned char) ibuf[ibuf_pos++] : -1;
-	if (icmd_pos < sizeof(icmd))
-		icmd[icmd_pos++] = c;
-	return c;
 }
 
 /* return a static string that changes text attributes from old to att */
